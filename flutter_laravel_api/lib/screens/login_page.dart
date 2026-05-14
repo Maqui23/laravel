@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'home_page.dart';
+import 'register_page.dart'; // Asegúrate de crear este archivo
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,9 +16,12 @@ class _LoginPageState extends State<LoginPage> {
   bool loading = false;
 
   Future<void> login() async {
-    setState(() {
-      loading = true;
-    });
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      _showSnackBar('Por favor, completa todos los campos');
+      return;
+    }
+
+    setState(() => loading = true);
 
     final ok = await ApiService.login(
       emailController.text,
@@ -25,30 +29,27 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (!mounted) return;
-
-    setState(() {
-      loading = false;
-    });
+    setState(() => loading = false);
 
     if (ok) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Credenciales incorrectas. Intenta de nuevo.'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      _showSnackBar('Credenciales incorrectas. Intenta de nuevo.');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -62,116 +63,86 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icono o Logo superior
+                // Icono decorativo
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.indigo.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.lock_person_rounded,
-                    size: 80,
-                    color: Colors.indigo,
-                  ),
+                  child: const Icon(Icons.lock_person_rounded, size: 80, color: Colors.indigo),
                 ),
                 const SizedBox(height: 30),
-                
-                // Textos de bienvenida
                 const Text(
-                  '¡Bienvenido de vuelta!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Ingresa a tu cuenta para continuar',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  '¡Bienvenido!',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 40),
 
-                // Campo de Correo Electrónico
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Correo electrónico',
-                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.indigo),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(color: Colors.indigo, width: 2),
-                    ),
+                // Inputs
+                _buildTextField(emailController, 'Correo electrónico', Icons.email_outlined),
+                const SizedBox(height: 20),
+                _buildTextField(passwordController, 'Contraseña', Icons.lock_outline, isObscure: true),
+                
+                // Punto 1.3: Link de recuperación
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _showSnackBar('Servicio de recuperación en AWS...'),
+                    child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(color: Colors.indigo)),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Campo de Contraseña
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña',
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.indigo),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: const BorderSide(color: Colors.indigo, width: 2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Botón de Iniciar Sesión
+                // Botón Principal
                 ElevatedButton(
                   onPressed: loading ? null : login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 55),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   ),
-                  child: loading
-                      ? const SizedBox(
-                          height: 25,
-                          width: 25,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : const Text(
-                          'INICIAR SESIÓN',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
+                  child: loading 
+                    ? const CircularProgressIndicator(color: Colors.white) 
+                    : const Text('INICIAR SESIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 20),
+
+                // Punto 1.2: Navegación a Registro
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("¿No tienes cuenta?"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegisterPage()),
+                        );
+                      },
+                      child: const Text("Regístrate", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isObscure = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: isObscure,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.indigo),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
       ),
     );
   }

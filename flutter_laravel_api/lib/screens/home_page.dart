@@ -30,12 +30,9 @@ class _HomePageState extends State<HomePage> {
     
     if (!mounted) return; 
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      ),
-    );
+    // MODIFICACIÓN: Usamos pushReplacementNamed para limpiar la pila de navegación
+    // y redirigir al login de forma segura.
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -60,7 +57,7 @@ class _HomePageState extends State<HomePage> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  // Cabecera con la imagen de perfil de la URL proporcionada
+                  // Cabecera con diseño curvo
                   Container(
                     width: double.infinity,
                     decoration: const BoxDecoration(
@@ -76,15 +73,13 @@ class _HomePageState extends State<HomePage> {
                         CircleAvatar(
                           radius: 60,
                           backgroundColor: Colors.white,
-                          // URL de imagen de X (Twitter) integrada
                           backgroundImage: const NetworkImage('https://pbs.twimg.com/media/G3Ea7cvXEAAHU0H?format=jpg&name=4096x4096'),
                           onBackgroundImageError: (exception, stackTrace) {
                             debugPrint('Error al cargar la imagen de perfil');
                           },
-                          // Respaldo: si la imagen de la URL no carga, muestra la inicial
                           child: user!['name'] == null 
                             ? const Icon(Icons.person, size: 50, color: Colors.indigo)
-                            : null, // Si la imagen carga, el child no se ve
+                            : null, 
                         ),
                         const SizedBox(height: 15),
                         Text(
@@ -100,20 +95,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 25),
                   
-                  // Tarjeta de información del usuario
+                  // Información del usuario
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       child: ListTile(
                         leading: const Icon(Icons.email, color: Colors.indigo, size: 30),
-                        title: const Text(
-                          'Correo Electrónico',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
+                        title: const Text('Correo Electrónico', style: TextStyle(fontSize: 14, color: Colors.grey)),
                         subtitle: Text(
                           user!['email'] ?? '',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
@@ -122,19 +112,41 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
 
-                  // Sección de acciones
+                  // SECCIÓN DE ACCIONES (Punto 2: CRUD)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Acciones rápidas',
+                          'Gestión de Datos (CRUD)',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 15),
+                        
+                        // Botón para ir al Listado de Personas (Punto 2 del PDF)
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            // Aquí navegaremos a la pantalla de lista de personas
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Cargando lista desde AWS...')),
+                            );
+                          },
+                          icon: const Icon(Icons.people_alt_rounded),
+                          label: const Text('Ver Personas Registradas'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.indigo,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 60),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 15),
+
+                        // Tu botón de Pokédex
                         ElevatedButton.icon(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -142,23 +154,19 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                           icon: const Icon(Icons.catching_pokemon, size: 28),
-                          label: const Text(
-                            'Explorar Pokédex',
-                            style: TextStyle(fontSize: 18),
-                          ),
+                          label: const Text('Explorar Pokédex', style: TextStyle(fontSize: 18)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.redAccent,
                             foregroundColor: Colors.white,
                             minimumSize: const Size(double.infinity, 60),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                             elevation: 4,
                           ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

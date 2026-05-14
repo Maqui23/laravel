@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "409668613476",
+    "project_id": "proyecto-dbp2",
+    "storage_bucket": "proyecto-dbp2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409668613476:android:73b8d1e5d8aa2298c37671",
+        "android_client_info": {
+          "package_name": "com.example.flutter_laravel_api"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBegHykkaYa2VIdQ7IhgIA79THdQA9b_BA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
