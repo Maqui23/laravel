@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'login_page.dart';
+import 'personas_page.dart';
+import 'pokedex_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,9 +21,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> cargarUsuario() async {
     final data = await ApiService.getUser();
-    setState(() {
-      user = data;
-    });
+    
+    if (!mounted) return; // Evita errores si el widget se desmonta antes de que la API responda
+
+    if (data != null) {
+      setState(() {
+        user = data;
+      });
+    } else {
+      Navigator.pushReplacementNamed(context, '/login'); // Redirige si el token expiró o falló
+    }
   }
 
   Future<void> logout() async {
@@ -77,13 +85,13 @@ class _HomePageState extends State<HomePage> {
                           onBackgroundImageError: (exception, stackTrace) {
                             debugPrint('Error al cargar la imagen de perfil');
                           },
-                          child: user!['name'] == null 
+                          child: user!['name'] == null || user!['name'].toString().isEmpty
                             ? const Icon(Icons.person, size: 50, color: Colors.indigo)
                             : null, 
                         ),
                         const SizedBox(height: 15),
                         Text(
-                          '¡Hola, ${user!['name']}!',
+                          '¡Hola, ${user!['name'] ?? 'Usuario'}!',
                           style: const TextStyle(
                             fontSize: 24, 
                             color: Colors.white, 
@@ -105,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                         leading: const Icon(Icons.email, color: Colors.indigo, size: 30),
                         title: const Text('Correo Electrónico', style: TextStyle(fontSize: 14, color: Colors.grey)),
                         subtitle: Text(
-                          user!['email'] ?? '',
+                          user!['email'] ?? 'Sin correo',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
                         ),
                       ),
@@ -129,9 +137,9 @@ class _HomePageState extends State<HomePage> {
                         // Botón para ir al Listado de Personas (Punto 2 del PDF)
                         ElevatedButton.icon(
                           onPressed: () {
-                            // Aquí navegaremos a la pantalla de lista de personas
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Cargando lista desde AWS...')),
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(builder: (context) => PersonasPage()),
                             );
                           },
                           icon: const Icon(Icons.people_alt_rounded),
@@ -146,11 +154,12 @@ class _HomePageState extends State<HomePage> {
                         
                         const SizedBox(height: 15),
 
-                        // Tu botón de Pokédex
+                        // Tu botón de Pokédex actualizado
                         ElevatedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Cargando Pokédex...')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => PokedexPage()),
                             );
                           },
                           icon: const Icon(Icons.catching_pokemon, size: 28),

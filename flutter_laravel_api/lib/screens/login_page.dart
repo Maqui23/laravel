@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // Importación necesaria para Google
 import '../services/api_service.dart';
-import 'home_page.dart';
-import 'register_page.dart'; // Asegúrate de crear este archivo
+import 'recovery_page.dart'; // Importamos la página de recuperación
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,7 +14,22 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool loading = false;
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
+  @override
+  void initState() {
+    super.initState();
+    _googleSignIn.initialize(); // Requerido a partir de google_sign_in v7.0.0+
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  // --- LÓGICA DE LOGIN NORMAL ---
   Future<void> login() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       _showSnackBar('Por favor, completa todos los campos');
@@ -32,12 +47,41 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = false);
 
     if (ok) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+      Navigator.pushReplacementNamed(context, '/home'); // Usando rutas limpias
     } else {
       _showSnackBar('Credenciales incorrectas. Intenta de nuevo.');
+    }
+  }
+
+  // --- LÓGICA DE LOGIN CON GOOGLE (Punto 1.4) ---
+  Future<void> handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      
+      if (googleUser == null) {
+        return; // El usuario canceló
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      
+      if (googleAuth.idToken != null) {
+        if (!mounted) return;
+        _showSnackBar('Conectando con el servidor de AWS...');
+        
+        bool success = await ApiService.loginWithGoogle(googleAuth.idToken!);
+        
+        if (!mounted) return;
+        if (success) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          _showSnackBar('Error al autorizar con el servidor.');
+        }
+      }
+    } catch (error) {
+      print("Error de Google Sign-In: $error");
+      if (mounted) {
+        _showSnackBar('Error al conectar con Google. Revisa tu SHA-1.');
+      }
     }
   }
 
@@ -84,17 +128,22 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 _buildTextField(passwordController, 'Contraseña', Icons.lock_outline, isObscure: true),
                 
-                // Punto 1.3: Link de recuperación
+                // --- RECUPERACIÓN (Punto 1.3) ---
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () => _showSnackBar('Servicio de recuperación en AWS...'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RecoveryPage()),
+                      );
+                    },
                     child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(color: Colors.indigo)),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Botón Principal
+                // --- BOTÓN PRINCIPAL DE LOGIN ---
                 ElevatedButton(
                   onPressed: loading ? null : login,
                   style: ElevatedButton.styleFrom(
@@ -107,19 +156,44 @@ class _LoginPageState extends State<LoginPage> {
                     ? const CircularProgressIndicator(color: Colors.white) 
                     : const Text('INICIAR SESIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
+                
+                const SizedBox(height: 20),
+                const Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text("O ingresa con")),
+                    Expanded(child: Divider()),
+                  ],
+                ),
                 const SizedBox(height: 20),
 
-                // Punto 1.2: Navegación a Registro
+                // --- BOTÓN DE GOOGLE (Punto 1.4) ---
+                ElevatedButton.icon(
+                  onPressed: handleGoogleSignIn,
+                  icon: Image.network(
+                    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png', 
+                    height: 24
+                  ),
+                  label: const Text('Continuar con Google', style: TextStyle(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    minimumSize: const Size(double.infinity, 55),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    elevation: 1,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // --- NAVEGACIÓN A REGISTRO (Punto 1.2) ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text("¿No tienes cuenta?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegisterPage()),
-                        );
+                        Navigator.pushNamed(context, '/register');
                       },
                       child: const Text("Regístrate", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
                     ),

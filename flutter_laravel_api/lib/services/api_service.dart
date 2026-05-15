@@ -174,4 +174,18 @@ static Future<bool> loginWithGoogle(String idToken) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token'); // Limpiamos el almacenamiento local
   }
+
+  static Future<String?> recoverPassword(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/recover'),
+        headers: {'Accept': 'application/json'},
+        body: {'email': email},
+      );
+      final data = jsonDecode(response.body);
+      return data['message'];
+    } catch (e) {
+      return "Error de conexión con el servidor.";
+    }
+  }
 }
