@@ -6,8 +6,11 @@ class Persona {
   final String? email;
   final String? telefono;
   final String? fotoUrl;
+  final String? direccion;
+  final bool esFavorito;
+  final String? categoria;
 
-  Persona({
+  Persona( {
     required this.id,
     required this.nombres,
     required this.apellidos,
@@ -15,6 +18,9 @@ class Persona {
     this.email,
     this.telefono,
     this.fotoUrl,
+    this.direccion,
+    this.esFavorito = false,
+    this.categoria,
   });
 
   // Esto convierte el JSON que manda Laravel a un objeto de Dart
@@ -27,6 +33,9 @@ class Persona {
       email: json['email'],
       telefono: json['telefono'],
       fotoUrl: json['foto_url'],
+      direccion: json['direccion'],
+      esFavorito: json['es_favorito'] == 1,
+      categoria: json['categoria'],
     );
   }
 }

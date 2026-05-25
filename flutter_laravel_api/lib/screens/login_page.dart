@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // Importación necesaria para Google
+import 'package:google_sign_in/google_sign_in.dart'; 
 import '../services/api_service.dart';
-import 'recovery_page.dart'; // Importamos la página de recuperación
+import 'recovery_page.dart'; 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _googleSignIn.initialize(); // Requerido a partir de google_sign_in v7.0.0+
+    _googleSignIn.initialize(); 
   }
 
   @override
@@ -47,13 +47,13 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = false);
 
     if (ok) {
-      Navigator.pushReplacementNamed(context, '/home'); // Usando rutas limpias
+      Navigator.pushReplacementNamed(context, '/home'); 
     } else {
       _showSnackBar('Credenciales incorrectas. Intenta de nuevo.');
     }
   }
 
-  // --- LÓGICA DE LOGIN CON GOOGLE (Punto 1.4) ---
+  // --- LÓGICA DE LOGIN CON GOOGLE ---
   Future<void> handleGoogleSignIn() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     } catch (error) {
-      print("Error de Google Sign-In: $error");
+      debugPrint("Error de Google Sign-In: $error");
       if (mounted) {
         _showSnackBar('Error al conectar con Google. Revisa tu SHA-1.');
       }
@@ -98,125 +98,191 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icono decorativo
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.lock_person_rounded, size: 80, color: Colors.indigo),
-                ),
-                const SizedBox(height: 30),
-                const Text(
-                  '¡Bienvenido!',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 40),
-
-                // Inputs
-                _buildTextField(emailController, 'Correo electrónico', Icons.email_outlined),
-                const SizedBox(height: 20),
-                _buildTextField(passwordController, 'Contraseña', Icons.lock_outline, isObscure: true),
-                
-                // --- RECUPERACIÓN (Punto 1.3) ---
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RecoveryPage()),
-                      );
-                    },
-                    child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(color: Colors.indigo)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // --- BOTÓN PRINCIPAL DE LOGIN ---
-                ElevatedButton(
-                  onPressed: loading ? null : login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 55),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: loading 
-                    ? const CircularProgressIndicator(color: Colors.white) 
-                    : const Text('INICIAR SESIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-                
-                const SizedBox(height: 20),
-                const Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text("O ingresa con")),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // --- BOTÓN DE GOOGLE (Punto 1.4) ---
-                ElevatedButton.icon(
-                  onPressed: handleGoogleSignIn,
-                  icon: Image.network(
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png', 
-                    height: 24
-                  ),
-                  label: const Text('Continuar con Google', style: TextStyle(fontSize: 16)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black87,
-                    minimumSize: const Size(double.infinity, 55),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    elevation: 1,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // --- NAVEGACIÓN A REGISTRO (Punto 1.2) ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("¿No tienes cuenta?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/register');
-                      },
-                      child: const Text("Regístrate", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
-                    ),
-                  ],
-                ),
-              ],
+      backgroundColor: const Color(0xFFF0F2F5), // Fondo gris muy claro
+      body: Stack(
+        children: [
+          // --- FONDO SUPERIOR CON GRADIENTE ---
+          Container(
+            height: size.height * 0.4,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF283593), Color(0xFF3F51B5)], // Colores Índigo
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(50),
+                bottomRight: Radius.circular(50),
+              ),
             ),
           ),
-        ),
+          
+          // --- CONTENIDO PRINCIPAL ---
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 20),
+                    
+                    // ICONO Y TEXTOS DE CABECERA
+                    const Icon(Icons.lock_person_rounded, size: 70, color: Colors.white),
+                    const SizedBox(height: 12),
+                    const Text(
+                      '¡Bienvenido!',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      'Ingresa para continuar',
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 40),
+
+                    // --- TARJETA BLANCA FLOTANTE ---
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          // Inputs
+                          _buildTextField(emailController, 'Correo electrónico', Icons.email_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField(passwordController, 'Contraseña', Icons.lock_outline, isObscure: true),
+                          
+                          // Recuperar Contraseña
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const RecoveryPage()),
+                                );
+                              },
+                              child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(color: Color(0xFF3F51B5), fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // BOTÓN DE LOGIN PRINCIPAL
+                          SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              onPressed: loading ? null : login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF3F51B5),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 2,
+                              ),
+                              child: loading 
+                                ? const CircularProgressIndicator(color: Colors.white) 
+                                : const Text('INICIAR SESIÓN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)),
+                            ),
+                          ),
+                          
+                          // SEPARADOR VISUAL
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Row(
+                              children: [
+                                Expanded(child: Divider()),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Text("O ingresa con", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+                                ),
+                                Expanded(child: Divider()),
+                              ],
+                            ),
+                          ),
+                          
+                          // BOTÓN DE GOOGLE REDISEÑADO
+                          SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: OutlinedButton.icon(
+                              onPressed: handleGoogleSignIn,
+                              icon: Image.network(
+                                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png', 
+                                height: 24
+                              ),
+                              label: const Text('Continuar con Google', style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w600)),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.grey.shade300),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 35),
+
+                    // --- NAVEGACIÓN AL REGISTRO ---
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("¿No tienes cuenta?", style: TextStyle(color: Colors.black54, fontSize: 15)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: const Text("Regístrate", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF283593))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  // --- WIDGET PERSONALIZADO PARA LOS TEXTFIELDS ---
   Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isObscure = false}) {
     return TextField(
       controller: controller,
       obscureText: isObscure,
+      style: const TextStyle(fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.indigo),
+        labelStyle: const TextStyle(color: Colors.grey),
+        prefixIcon: Icon(icon, color: const Color(0xFF3F51B5)),
         filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+        fillColor: Colors.grey[50], // Fondo ligerísimamente gris para contraste
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF3F51B5), width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 18),
       ),
     );
   }

@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/persona.dart';
 
 class PersonaService {
-  final String baseUrl = 'http://3.137.136.104:8000/api';
-
+ final String baseUrl = 'http://3.137.136.104:8000/api';
   Future<String?> _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');

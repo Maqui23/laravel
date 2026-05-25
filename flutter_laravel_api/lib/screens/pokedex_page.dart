@@ -18,7 +18,7 @@ class _PokedexPageState extends State<PokedexPage> {
   
   bool isLoading = false;
   int offset = 0;
-  final int limit = 40; // Ajustado a 40 para un scroll más fluido
+  final int limit = 40; 
   String searchQuery = "";
 
   @override
@@ -56,11 +56,11 @@ class _PokedexPageState extends State<PokedexPage> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      print("Error: $e");
+      debugPrint("Error: $e");
     }
   }
 
-  // --- FILTRO LOCAL (Mientras escribes) ---
+  // --- FILTRO LOCAL ---
   void _filtrarPokemonLocales(String query) {
     setState(() {
       searchQuery = query;
@@ -74,7 +74,7 @@ class _PokedexPageState extends State<PokedexPage> {
     });
   }
 
-  // --- BÚSQUEDA REMOTA (Al presionar Lupa o Enter) ---
+  // --- BÚSQUEDA REMOTA ---
   Future<void> _buscarEnLaAPI(String query) async {
     if (query.isEmpty) return;
     
@@ -96,67 +96,92 @@ class _PokedexPageState extends State<PokedexPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF0F2F5), // Fondo gris moderno
       appBar: AppBar(
-        title: Text('Pokédex: ${pokemonList.length} / 1025'),
-        backgroundColor: Colors.redAccent,
+        title: Text('Pokédex (${pokemonList.length}/1025)', style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        backgroundColor: const Color(0xFFE53935), // Rojo vibrante Pokémon
+        foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
       ),
       body: Column(
         children: [
-          // --- BARRA DE BÚSQUEDA PROFESIONAL ---
+          // --- CABECERA CURVA CON BUSCADOR PREMIUM ---
           Container(
-            color: Colors.redAccent,
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _filtrarPokemonLocales,
-              onSubmitted: _buscarEnLaAPI,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: 'Nombre o número (Enter para buscar)',
-                // Botón de lupa a la izquierda para búsqueda remota
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: Colors.redAccent),
-                  onPressed: () => _buscarEnLaAPI(_searchController.text),
-                ),
-                // Botón de X a la derecha para limpiar
-                suffixIcon: searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filtrarPokemonLocales('');
-                          FocusScope.of(context).unfocus();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE53935),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 25),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _filtrarPokemonLocales,
+                onSubmitted: _buscarEnLaAPI,
+                textInputAction: TextInputAction.search,
+                style: const TextStyle(fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Buscar nombre o número...',
+                  hintStyle: TextStyle(color: Colors.grey.shade400),
+                  prefixIcon: IconButton(
+                    icon: const Icon(Icons.search_rounded, color: Color(0xFFE53935)),
+                    onPressed: () => _buscarEnLaAPI(_searchController.text),
+                  ),
+                  suffixIcon: searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.cancel_rounded, color: Colors.grey),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filtrarPokemonLocales('');
+                            FocusScope.of(context).unfocus();
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
                 ),
               ),
             ),
           ),
 
+          // --- CONTENIDO PRINCIPAL ---
           Expanded(
             child: filteredPokemonList.isEmpty && isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.red))
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFFE53935)))
                 : filteredPokemonList.isEmpty && !isLoading
-                    ? const Center(
-                        child: Text("No se encontró ningún Pokémon", 
-                        style: TextStyle(color: Colors.grey, fontSize: 16)))
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.catching_pokemon, size: 80, color: Colors.grey.shade300),
+                            const SizedBox(height: 16),
+                            const Text("No se encontró ningún Pokémon", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      )
                     : GridView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(16),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.9,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
+                          childAspectRatio: 0.75, // Ajustado para dar más espacio vertical
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
                         ),
                         itemCount: filteredPokemonList.length,
                         itemBuilder: (context, index) {
@@ -164,11 +189,13 @@ class _PokedexPageState extends State<PokedexPage> {
                         },
                       ),
           ),
-          // Solo muestra el cargador de abajo si estamos haciendo scroll normal
+          
+          // Cargador inferior para el scroll infinito
           if (isLoading && searchQuery.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(color: Colors.red),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              color: Colors.transparent,
+              child: const CircularProgressIndicator(color: Color(0xFFE53935)),
             ),
         ],
       ),
@@ -176,42 +203,92 @@ class _PokedexPageState extends State<PokedexPage> {
   }
 
   // ---------------------------------------------------------
-  // DISEÑO DE LA TARJETA CON NAVEGACIÓN
+  // TARJETA PREMIUM DINÁMICA
   // ---------------------------------------------------------
   Widget _buildPokemonCard(Pokemon pokemon) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 4,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PokemonDetailPage(pokemon: pokemon)),
-          );
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("#${pokemon.id.toString().padLeft(3, '0')}", 
-                 style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-            Expanded(
-              child: Image.network(
-                pokemon.imagenUrl, 
-                fit: BoxFit.contain,
-                // Placeholder por si la imagen tarda en cargar
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50),
-              ),
-            ),
-            Text(pokemon.nombre.toUpperCase(), 
-                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            const SizedBox(height: 5),
-            Row(
+    // Extraemos el color principal basado en el primer tipo del Pokémon
+    final Color mainColor = pokemon.tipos.isNotEmpty ? _getColorTipo(pokemon.tipos.first) : Colors.grey;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: mainColor.withOpacity(0.2), // Sombra dinámica según el tipo
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PokemonDetailPage(pokemon: pokemon)),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: pokemon.tipos.map((tipo) => _buildTipoBadge(tipo)).toList(),
+              children: [
+                // Etiqueta del ID
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Text(
+                    "#${pokemon.id.toString().padLeft(3, '0')}", 
+                    style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.bold, fontSize: 13)
+                  ),
+                ),
+                
+                // Imagen con fondo circular dinámico
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: mainColor.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      Image.network(
+                        pokemon.imagenUrl, 
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.catching_pokemon, size: 50, color: Colors.grey.shade300),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Nombre
+                const SizedBox(height: 8),
+                Text(
+                  pokemon.nombre.toUpperCase(), 
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF2C3E50)),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                
+                // Tipos (Píldoras)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: pokemon.tipos.map((tipo) => _buildTipoBadge(tipo)).toList(),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-          ],
+          ),
         ),
       ),
     );
@@ -230,30 +307,38 @@ class _PokedexPageState extends State<PokedexPage> {
 
   Widget _buildTipoBadge(String tipo) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: _getColorTipo(tipo),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        _traducirTipo(tipo), 
-        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)
+        _traducirTipo(tipo).toUpperCase(), 
+        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)
       ),
     );
   }
 
   Color _getColorTipo(String tipo) {
     switch (tipo) {
-      case 'fire': return Colors.orange; case 'water': return Colors.blue;
-      case 'grass': return Colors.green; case 'poison': return Colors.purple;
-      case 'electric': return Colors.yellow[700]!; case 'bug': return Colors.lightGreen;
-      case 'normal': return Colors.grey; case 'flying': return Colors.lightBlueAccent;
-      case 'ground': return Colors.brown[300]!; case 'fighting': return Colors.red[900]!;
-      case 'psychic': return Colors.pink; case 'rock': return Colors.brown;
-      case 'ghost': return Colors.deepPurple; case 'ice': return Colors.cyanAccent;
-      case 'dragon': return Colors.indigo; case 'dark': return Colors.black87;
-      case 'steel': return Colors.blueGrey; case 'fairy': return Colors.pinkAccent;
+      case 'fire': return const Color(0xFFF42D2D); 
+      case 'water': return const Color(0xFF3B9BF1);
+      case 'grass': return const Color(0xFF48D0B0); 
+      case 'poison': return const Color(0xFF9F5BBA);
+      case 'electric': return const Color(0xFFFAC000); 
+      case 'bug': return const Color(0xFF98D142);
+      case 'normal': return const Color(0xFFA0A29F); 
+      case 'flying': return const Color(0xFF79A4FF);
+      case 'ground': return const Color(0xFFE19854); 
+      case 'fighting': return const Color(0xFFD6425E);
+      case 'psychic': return const Color(0xFFF85888); 
+      case 'rock': return const Color(0xFFCEC18C);
+      case 'ghost': return const Color(0xFF6970C5); 
+      case 'ice': return const Color(0xFF61CEC0);
+      case 'dragon': return const Color(0xFF0773C7); 
+      case 'dark': return const Color(0xFF595761);
+      case 'steel': return const Color(0xFF5596A4); 
+      case 'fairy': return const Color(0xFFEA1369);
       default: return Colors.grey;
     }
   }

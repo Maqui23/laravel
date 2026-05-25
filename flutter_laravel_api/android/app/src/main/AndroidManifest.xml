@@ -15,6 +15,15 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <application
@@ -23,6 +32,9 @@
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         
+        <meta-data 
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCj6i9bsnUf3SIBD--tEbiGtLJCeR_5tb4"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
