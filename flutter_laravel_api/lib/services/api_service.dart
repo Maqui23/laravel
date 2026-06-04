@@ -6,7 +6,7 @@ class ApiService {
   // IP pública de tu instancia de AWS
   static const String baseUrl = 'http://3.137.136.104/api';
 
-  // 1. AUTENTICACIÓN: LOGIN [cite: 6, 12]
+  // 1. AUTENTICACIÓN: LOGIN
   static Future<bool> login(String email, String password) async {
     try {
       final response = await http.post(
@@ -18,7 +18,7 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final prefs = await SharedPreferences.getInstance();
-        // Guardamos el token de Sanctum para persistir la sesión [cite: 5-6]
+        // Guardamos el token de Sanctum para persistir la sesión
         await prefs.setString('token', data['token']);
         return true;
       }
@@ -53,7 +53,7 @@ class ApiService {
     }
   }
 
-  // 2. CRUD: LISTAR PERSONAS [cite: 13, 24, 91]
+  // 2. CRUD: LISTAR PERSONAS
   static Future<List<dynamic>> getPersonas() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -77,25 +77,25 @@ class ApiService {
     }
   }
 
-  // 3. CRUD: CREAR CON IMAGEN (Cámara/Galería) [cite: 23, 27, 30-33]
+  // 3. CRUD: CREAR CON IMAGEN (Cámara/Galería)
   static Future<bool> createPersona(String nombre, String detalle, String? imagePath) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     try {
-      // Usamos MultipartRequest para poder enviar archivos (fotos) [cite: 27]
+      // Usamos MultipartRequest para poder enviar archivos (fotos)
       var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/personas'));
-      
+
       request.headers.addAll({
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       });
 
-      // Campos de texto para la base de datos MySQL [cite: 85]
+      // Campos de texto para la base de datos MySQL
       request.fields['nombre'] = nombre;
       request.fields['detalle'] = detalle;
 
-      // Si se capturó una foto, la adjuntamos al envío [cite: 30-31]
+      // Si se capturó una foto, la adjuntamos al envío
       if (imagePath != null && imagePath.isNotEmpty) {
         request.files.add(await http.MultipartFile.fromPath('foto', imagePath));
       }
@@ -110,7 +110,7 @@ class ApiService {
     }
   }
 
-  // 4. CRUD: ELIMINAR PERSONA [cite: 26]
+  // 4. CRUD: ELIMINAR PERSONA
   static Future<bool> deletePersona(int id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -130,27 +130,28 @@ class ApiService {
     }
   }
 
-static Future<bool> loginWithGoogle(String idToken) async {
-  final response = await http.post(
-    Uri.parse('$baseUrl/google-login'),
-    body: {'token': idToken},
-  );
+  static Future<bool> loginWithGoogle(String idToken) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/google-login'),
+      body: {'token': idToken},
+    );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', data['token']);
-    return true;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']);
+      return true;
+    }
+    return false;
   }
-  return false;
-}
+
   // 5. OBTENER PERFIL DE USUARIO
   static Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    
+
     if (token == null) return null;
-    
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/user'),
@@ -186,6 +187,32 @@ static Future<bool> loginWithGoogle(String idToken) async {
       return data['message'];
     } catch (e) {
       return "Error de conexión con el servidor.";
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 7. ACTUALIZAR CONTRASEÑA (NUEVA FUNCIÓN)
+  // -------------------------------------------------------------
+  static Future<bool> updatePassword(String nuevaPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token'); // Usamos tu llave exacta
+
+    if (token == null) return false;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/update-password'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: {'password': nuevaPassword},
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error al actualizar contraseña: $e");
+      return false;
     }
   }
 }

@@ -45,6 +45,7 @@ dependencies:
   share_plus: ^10.0.0
   google_maps_flutter: ^2.14.2
   geocoding: ^4.0.0
+  sensors_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:
