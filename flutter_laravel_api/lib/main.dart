@@ -23,14 +23,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mi Portafolio - Auth Laravel',
+      title: 'AlexCore',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      
-      // LÓGICA DE AUTO-LOGIN: 
+
+      // LÓGICA DE AUTO-LOGIN:
       // Si el token no es nulo, va directo al Home. Si es nulo, al Login.
       home: token != null ? const HomePage() : const LoginPage(),
 
@@ -42,4 +42,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-} 
+}

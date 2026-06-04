@@ -12,7 +12,20 @@
           "package_name": "com.example.flutter_laravel_api"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "409668613476-943tcb50vuaktsi762c843j2hqkj5v7u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_laravel_api",
+            "certificate_hash": "0ba626873083f3af0f17ccad9877c21d44d4d227"
+          }
+        },
+        {
+          "client_id": "409668613476-0depuk6ms8r6ur8gemesaqoavov9e5dd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBegHykkaYa2VIdQ7IhgIA79THdQA9b_BA"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "409668613476-0depuk6ms8r6ur8gemesaqoavov9e5dd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
