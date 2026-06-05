@@ -26,6 +26,9 @@ class _CrearPersonaPageState extends State<CrearPersonaPage> {
   late TextEditingController telefonoCtrl;
   late TextEditingController direccionCtrl;
 
+  // --- NUEVO CONTROLADOR ---
+  late TextEditingController nivelEducativoCtrl;
+
   // --- VARIABLES PARA CATEGORÍAS Y FAVORITOS ---
   String? _categoriaSeleccionada;
   bool _esFavorito = false;
@@ -44,6 +47,9 @@ class _CrearPersonaPageState extends State<CrearPersonaPage> {
     emailCtrl = TextEditingController(text: widget.persona?.email ?? '');
     telefonoCtrl = TextEditingController(text: widget.persona?.telefono ?? '');
     direccionCtrl = TextEditingController(text: widget.persona?.direccion ?? '');
+
+    // --- INICIALIZAR EL NUEVO CONTROLADOR ---
+    nivelEducativoCtrl = TextEditingController(text: widget.persona?.nivelEducativo ?? '');
 
     if (widget.persona?.categoria != null && _categorias.contains(widget.persona!.categoria)) {
       _categoriaSeleccionada = widget.persona!.categoria;
@@ -125,6 +131,9 @@ class _CrearPersonaPageState extends State<CrearPersonaPage> {
         'telefono': telefonoCtrl.text,
         'direccion': direccionCtrl.text,
         'es_favorito': _esFavorito ? '1' : '0',
+
+        // --- AGREGAMOS EL DATO AL MAPA PARA EL BACKEND ---
+        'nivel_educativo': nivelEducativoCtrl.text,
       };
 
       if (_categoriaSeleccionada != null) {
@@ -303,6 +312,10 @@ class _CrearPersonaPageState extends State<CrearPersonaPage> {
                           });
                         },
                       ),
+                      const SizedBox(height: 16),
+
+                      // --- NUEVO CAMPO: NIVEL EDUCATIVO ---
+                      _buildTextField(nivelEducativoCtrl, 'Nivel Educativo', Icons.school_rounded, esOpcional: true),
                       const SizedBox(height: 16),
                       // --------------------------------------------
 

@@ -364,7 +364,7 @@ class _PersonasPageState extends State<PersonasPage> {
                                     if (result == true) _cargarPersonas();
                                   },
                                   onLongPress: () {
-                                    Share.share('👤 ${persona.nombres} ${persona.apellidos}\n📱 ${persona.telefono ?? '-'}\n📍 ${persona.direccion ?? '-'}', subject: 'Contacto Seguro');
+                                    Share.share('👤 ${persona.nombres} ${persona.apellidos}\n🎓 ${persona.nivelEducativo ?? '-'}\n📱 ${persona.telefono ?? '-'}\n📍 ${persona.direccion ?? '-'}', subject: 'Contacto Seguro');
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(16.0),
@@ -429,6 +429,24 @@ class _PersonasPageState extends State<PersonasPage> {
                                                   const SizedBox(height: 8),
 
                                                   // DATOS
+                                                  if (persona.nivelEducativo != null && persona.nivelEducativo!.isNotEmpty)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(bottom: 4),
+                                                      child: Row(
+                                                        children: [
+                                                          const Icon(Icons.school_rounded, size: 14, color: Colors.cyanAccent),
+                                                          const SizedBox(width: 6),
+                                                          Expanded(
+                                                            child: Text(
+                                                              persona.nivelEducativo!,
+                                                              style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.8)),
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
                                                   if (persona.telefono != null && persona.telefono!.isNotEmpty)
                                                     Row(
                                                       children: [
@@ -480,7 +498,7 @@ class _PersonasPageState extends State<PersonasPage> {
                                                    final String mensajePredeterminado = "Hola ${persona.nombres}, te escribo desde mi sistema AlexCore. ¿Qué tal?";
                                                    final String mensajeCodificado = Uri.encodeComponent(mensajePredeterminado);
                                                    final String urlFinal = 'https://wa.me/51${persona.telefono}?text=$mensajeCodificado';
-                                                   
+
                                                    launchUrl(Uri.parse(urlFinal), mode: LaunchMode.externalApplication);
                                                   }
                                                 ),

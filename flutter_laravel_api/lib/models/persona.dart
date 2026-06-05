@@ -9,6 +9,7 @@ class Persona {
   final String? direccion;
   final bool esFavorito;
   final String? categoria;
+  final String? nivelEducativo;
 
   Persona( {
     required this.id,
@@ -21,6 +22,7 @@ class Persona {
     this.direccion,
     this.esFavorito = false,
     this.categoria,
+    this.nivelEducativo,
   });
 
   // Esto convierte el JSON que manda Laravel a un objeto de Dart
@@ -36,6 +38,7 @@ class Persona {
       direccion: json['direccion'],
       esFavorito: json['es_favorito'] == 1,
       categoria: json['categoria'],
+      nivelEducativo: json['nivel_educativo'],
     );
   }
 }
